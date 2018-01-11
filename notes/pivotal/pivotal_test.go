@@ -123,14 +123,8 @@ func TestGetActualStory(t *testing.T) {
 	story, _, err := client.client.Stories.Get(1974589, 154134429)
 	assert.Equal(t, nil, err, "err should be nil")
 	assert.NotEqual(t, nil, story, "story should not be nil")
-	// projectId, err := GetStoryProjectId(client, 154134429)
 	project, _, err := client.client.Projects.Get(1974589)
 	assert.Equal(t, nil, err, "err should be nil")
 	assert.Equal(t, 1974589, project.Id, "projectId should equal 1974589")
 	assert.NotEqual(t, 0, len(project.StoryIds), "project.StoryIds should have > 0 items")
-	// story, err := GetStory(client, client, 154134429)
-	// assert.Equal(t, err, nil, "err should be nil")
-	// fmt.Println(story.Description)
-	// assert.Equal(t, story.Name, "Status filters should update when statuses changes are successful",
-	//     "story.Name should be set correctly")
 }

@@ -20,16 +20,16 @@
   version = "v0.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/samdfonseca/go-tracker"
+  packages = ["."]
+  revision = "cd860e458826d48f9c495699345f94f4d2e58f57"
+
+[[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
   version = "v1.2.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/xoebus/go-tracker"
-  packages = ["."]
-  revision = "a6632e804865bb539e377fc5110656f4c5a4c301"
 
 [[projects]]
   branch = "v2"
@@ -40,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cf1315629a5d080d282cbb8a54eb1d78bb1737fb7aa59551f2c4a878bd4e4f84"
+  inputs-digest = "7ab26c14b15f7c24cb88b02362c6aa9839672e85238200677beeae836cc2aa51"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -6,12 +6,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xoebus/go-tracker"
+
+	"github.com/samdfonseca/go-tracker"
+	"github.com/samdfonseca/releaser/notes/config"
 )
 
 var (
-	PIVOTAL_API_TOKEN  = os.Getenv("PIVOTAL_API_TOKEN")
-	ACTUAL_PROJECT_IDS = []int{2077921, 2123086, 1974589, 2099793}
+	TEST_CONFIG = config.NotesConfig{
+		PivotalApiToken:   os.Getenv("PIVOTAL_API_TOKEN"),
+		PivotalProjectIds: []int{2077921, 2123086, 1974589, 2099793},
+		GithubOrg:         "axialmarket",
+	}
 )
 
 func TestGetStoriesByLabel(t *testing.T) {
@@ -19,9 +24,9 @@ func TestGetStoriesByLabel(t *testing.T) {
 	// TEST_ACTUAL_STORY_ID := 154266846
 	TestActualStoryName := "SmartShare window yes/no buttons not reacting (only the X button reacts)"
 	TestActualStoryLabels := []string{"rc-2018-01-15", "smartshare"}
-	client := tracker.NewClient(PIVOTAL_API_TOKEN)
+	client := tracker.NewClient(TEST_CONFIG.PivotalApiToken)
 	var stories []tracker.Story
-	for _, projId := range ACTUAL_PROJECT_IDS {
+	for _, projId := range TEST_CONFIG.PivotalProjectIds {
 		projClient := client.InProject(projId)
 		projStories, err := GetStoriesWithLabel(projClient, "rc-2018-01-15")
 		assert.Equal(t, err, nil, "err should be nil")
@@ -40,11 +45,13 @@ func TestGetPrLinkFromStoryDescription(t *testing.T) {
 	ExpectedPrLink := "https://github.com/axialmarket/axial-FE-app/pull/805"
 	urlParts, err := ParseStoryUrl(ACTUAL_PROJECT_LINK)
 	assert.Equal(t, err, nil, "err should be nil")
-	client := tracker.NewClient(PIVOTAL_API_TOKEN)
+	client := tracker.NewClient(TEST_CONFIG.PivotalApiToken)
 	projClient := client.InProject(urlParts["projectId"])
 	stories, _, err := projClient.Stories(tracker.StoriesQuery{Filter: []string{fmt.Sprintf("id:%d", urlParts["storyId"])}})
 	assert.Equal(t, err, nil, "err should be nil")
 	assert.Equal(t, ExpectedStoryName, stories[0].Name)
-	prLink := GetPrLinksFromStory(stories[0])[0]
+	prLinkRegexp, err := GetPrLinkRegexp(TEST_CONFIG.GithubOrg)
+	assert.Equal(t, err, nil, "err should be nil")
+	prLink := GetPrLinksFromStory(stories[0], prLinkRegexp)[0]
 	assert.Equal(t, ExpectedPrLink, prLink)
 }

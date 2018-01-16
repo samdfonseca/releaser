@@ -29,6 +29,32 @@ type ProjectClient struct {
 	conn connection
 }
 
+func (p ProjectClient) Project() (*Project, error) {
+	projectPath := fmt.Sprintf("/projects/%d", p.id)
+	var params url.Values
+	req, err := p.conn.CreateRequest("GET", projectPath, params)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := p.conn.sendRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var project Project
+	if err = json.Unmarshal(body, &project); err != nil {
+		return nil, err
+	}
+
+	return &project, nil
+}
+
 func (p ProjectClient) Stories(query StoriesQuery) ([]Story, Pagination, error) {
 	request, err := p.createRequest("GET", "/stories", query.Query())
 	if err != nil {

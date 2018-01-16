@@ -25,6 +25,11 @@ func main() {
 						Name:  "relDate",
 						Usage: "date of release in yyyy-mm-dd format",
 					},
+					&cli.StringFlag{
+						Name:  "config",
+						Usage: "path to the config.json file",
+						Value: "./notes_config.json",
+					},
 				},
 			},
 			{
@@ -36,6 +41,11 @@ func main() {
 					&cli.StringFlag{
 						Name:  "page",
 						Usage: "name of the wiki page to update",
+					},
+					&cli.StringFlag{
+						Name:  "config",
+						Usage: "path to the config.json file",
+						Value: "./notes_config.json",
 					},
 				},
 			},

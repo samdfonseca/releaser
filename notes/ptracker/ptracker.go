@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/xoebus/go-tracker"
+	"github.com/samdfonseca/go-tracker"
 )
 
-var (
-	PR_LINK_REGEXP = regexp.MustCompile(`https:\/\/github.com\/axialmarket\/[a-zA-Z-]+\/pull/[0-9]+`)
-)
+func GetPrLinkRegexp(githubOrg string) (*regexp.Regexp, error) {
+	return regexp.Compile(fmt.Sprintf(`https:\/\/github.com\/%s\/[a-zA-Z-]+\/pull/[0-9]+`, githubOrg))
+}
 
 func NewClient(apiToken string) *tracker.Client {
 	return tracker.NewClient(apiToken)
@@ -73,6 +73,6 @@ func ParseStoryUrl(storyUrl string) (map[string]int, error) {
 	}, nil
 }
 
-func GetPrLinksFromStory(story tracker.Story) []string {
-	return PR_LINK_REGEXP.FindAllString(story.Description, -1)
+func GetPrLinksFromStory(story tracker.Story, prLinkRegexp *regexp.Regexp) []string {
+	return prLinkRegexp.FindAllString(story.Description, -1)
 }

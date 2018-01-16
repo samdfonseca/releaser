@@ -22,7 +22,7 @@ import (
 
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/xoebus/go-tracker"
+	"github.com/samdfonseca/go-tracker"
 )
 
 var _ = Describe("Tracker Client", func() {

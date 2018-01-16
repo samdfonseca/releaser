@@ -1,0 +1,8 @@
+= Tracker
+
+image:https://travis-ci.org/samdfonseca/go-tracker.svg?branch=master["Build Status", link="https://travis-ci.org/samdfonseca/go-tracker"]
+image:https://coveralls.io/repos/samdfonseca/go-tracker/badge.png["Coverage Status", link="https://coveralls.io/r/samdfonseca/go-tracker"]
+
+A Pivotal Tracker API client written in Go
+
+Fixtures are from the Pivotal Tracker API documentation.

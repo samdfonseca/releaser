@@ -9,13 +9,12 @@ import (
 
 	"gopkg.in/urfave/cli.v2"
 
+	notesConfig "github.com/samdfonseca/releaser/notes/config"
 	"github.com/samdfonseca/releaser/notes/ptracker"
 	"github.com/samdfonseca/releaser/notes/wiki"
 )
 
 var (
-	PIVOTAL_API_TOKEN     = os.Getenv("PIVOTAL_API_TOKEN")
-	PIVOTAL_PROJECT_IDS   = []int{2077921, 2123086, 1974589, 2099793}
 	PIVOTAL_PROJECT_NAMES = map[int]string{
 		2077921: "TAXONIMY",
 		2123086: "FLOATING",
@@ -25,6 +24,15 @@ var (
 )
 
 func getReleaseStories(c *cli.Context) error {
+	configPath := c.String("config")
+	f, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+	config, err := notesConfig.NewNotesConfig(f)
+	if err != nil {
+		return err
+	}
 	label := c.String("label")
 	if label == "" {
 		label = fmt.Sprintf("rc-%s", time.Now().Format("2006-01-02"))
@@ -37,13 +45,21 @@ func getReleaseStories(c *cli.Context) error {
 		ReleaseDate: relDate,
 		Teams:       []wiki.RelNotesTeam{},
 	}
-	ptClient := ptracker.NewClient(PIVOTAL_API_TOKEN)
-	for _, projId := range PIVOTAL_PROJECT_IDS {
+	ptClient := ptracker.NewClient(config.PivotalApiToken)
+	prLinkRegexp, err := ptracker.GetPrLinkRegexp(config.GithubOrg)
+	if err != nil {
+		return err
+	}
+	for _, projId := range config.PivotalProjectIds {
+		projClient := ptClient.InProject(projId)
+		proj, err := projClient.Project()
+		if err != nil {
+			return err
+		}
 		relNotesTeam := wiki.RelNotesTeam{
-			TeamName:  PIVOTAL_PROJECT_NAMES[projId],
+			TeamName:  proj.Name,
 			TeamItems: []wiki.RelNotesItem{},
 		}
-		projClient := ptClient.InProject(projId)
 		projStories, err := ptracker.GetStoriesWithLabel(projClient, label)
 		if err != nil {
 			return err
@@ -55,7 +71,7 @@ func getReleaseStories(c *cli.Context) error {
 				StoryRepo:   "no PR",
 				StoryPrLink: "no PR",
 			}
-			prUrls := ptracker.GetPrLinksFromStory(story)
+			prUrls := ptracker.GetPrLinksFromStory(story, prLinkRegexp)
 			if len(prUrls) > 0 {
 				parsedPrUrl, err := url.Parse(prUrls[0])
 				if err != nil {

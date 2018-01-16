@@ -32,12 +32,6 @@
   revision = "a6632e804865bb539e377fc5110656f4c5a4c301"
 
 [[projects]]
-  name = "gopkg.in/salsita/go-pivotaltracker.v1"
-  packages = ["v5/pivotal"]
-  revision = "46083f60193ab53b18d2ffe64d298127652b39ac"
-  version = "v1.4.0"
-
-[[projects]]
   branch = "v2"
   name = "gopkg.in/urfave/cli.v2"
   packages = ["."]
@@ -46,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d612388249b360413983196ec8c641f367eb30d4c12a442081fe38bba3a9927c"
+  inputs-digest = "cf1315629a5d080d282cbb8a54eb1d78bb1737fb7aa59551f2c4a878bd4e4f84"
   solver-name = "gps-cdcl"
   solver-version = 1

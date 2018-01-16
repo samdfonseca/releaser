@@ -21,6 +21,10 @@ func main() {
 						Name:  "label",
 						Usage: "pivotal label for stories in release",
 					},
+					&cli.StringFlag{
+						Name:  "relDate",
+						Usage: "date of release in yyyy-mm-dd format",
+					},
 				},
 			},
 			{

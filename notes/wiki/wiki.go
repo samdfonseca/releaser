@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	REL_NOTES_PAGE_TEMPLATE = `{{"{{RelNotesHeader}}"}}
+	REL_NOTES_PAGE_TEMPLATE = `Release Date: {{ .ReleaseDate }}
 {{range .Teams}}{{"{{RelNotesTeam|"}}{{ .TeamName }}|{{len .TeamItems }}{{"}}"}}
 {{range .TeamItems}}{{"{{RelNotesTicket|"}}{{ .StoryLink }}|{{ .StoryName }}|{{ .StoryRepo }}|{{ .StoryPrLink }}{{"}}"}}
 {{end}}
@@ -33,7 +33,8 @@ type RelNotesTeam struct {
 }
 
 type RelNotesVars struct {
-	Teams []RelNotesTeam
+	ReleaseDate string
+	Teams       []RelNotesTeam
 }
 
 func NewWikiClient(wikiUrl string) (*WikiClient, error) {

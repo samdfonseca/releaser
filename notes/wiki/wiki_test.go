@@ -33,11 +33,12 @@ func TestEditWikiPage(t *testing.T) {
 }
 
 func TestGenerateRelNotesText(t *testing.T) {
-	EXPECTED_REL_NOTES_PAGE := `{{RelNotesHeader}}
+	EXPECTED_REL_NOTES_PAGE := `Release Date: 2018-01-11
 {{RelNotesTeam|OUTREACH|1}}
 {{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134429|Status filters should update when statuses changes are successful|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/805}}
 `
 	i := RelNotesVars{
+		ReleaseDate: "2018-01-11",
 		Teams: []RelNotesTeam{
 			RelNotesTeam{
 				TeamName: "OUTREACH",
@@ -61,7 +62,7 @@ func TestGenerateRelNotesText(t *testing.T) {
 }
 
 func TestGenerateRelNotesMultipleStories(t *testing.T) {
-	EXPECTED_REL_NOTES_PAGE := `{{RelNotesHeader}}
+	EXPECTED_REL_NOTES_PAGE := `Release Date: 2018-01-11
 {{RelNotesTeam|OUTREACH|2}}
 {{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134429|Status filters should update when statuses changes are successful|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/805}}
 {{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134398|I want to see sender's name in Active Deals list|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/813}}
@@ -69,6 +70,7 @@ func TestGenerateRelNotesMultipleStories(t *testing.T) {
 {{RelNotesTicket|https://www.pivotaltracker.com/story/show/154255967|Implement discard changes option to exit modal on sellside form|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/814}}
 `
 	i := RelNotesVars{
+		ReleaseDate: "2018-01-11",
 		Teams: []RelNotesTeam{
 			RelNotesTeam{
 				TeamName: "OUTREACH",

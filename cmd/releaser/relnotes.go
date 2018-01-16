@@ -29,7 +29,14 @@ func getReleaseStories(c *cli.Context) error {
 	if label == "" {
 		label = fmt.Sprintf("rc-%s", time.Now().Format("2006-01-02"))
 	}
-	var relNotesVars wiki.RelNotesVars
+	relDate := c.String("relDate")
+	if relDate == "" {
+		relDate = time.Now().Format("2006-01-02")
+	}
+	relNotesVars := wiki.RelNotesVars{
+		ReleaseDate: relDate,
+		Teams:       []wiki.RelNotesTeam{},
+	}
 	ptClient := ptracker.NewClient(PIVOTAL_API_TOKEN)
 	for _, projId := range PIVOTAL_PROJECT_IDS {
 		relNotesTeam := wiki.RelNotesTeam{

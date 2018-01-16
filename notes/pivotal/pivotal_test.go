@@ -27,8 +27,12 @@ type MockStoryGetter struct {
 }
 
 var (
-	mockProjectIds = []int{100, 101, 102, 103, 104}
-	mockStoryIds   = []int{200, 201, 202, 203, 204}
+	mockProjectIds    = []int{100, 101, 102, 103, 104}
+	mockStoryIds      = []int{200, 201, 202, 203, 204}
+	actualProjectId   = 2077921
+	actualStoryId     = 154266846
+	actualStoryName   = "SmartShare window yes/no buttons not reacting (only the X button reacts)"
+	actualStoryLabels = []string{"rc-2018-01-15", "smartshare"}
 )
 
 func NewMockProjectLister() *MockProjectLister {
@@ -120,11 +124,21 @@ func TestGetActualStory(t *testing.T) {
 	pivotalApiToken := os.Getenv("PIVOTAL_API_TOKEN")
 	assert.NotEqual(t, pivotalApiToken, "", "pivotalApiToken should not be empty")
 	client := NewClient(pivotalApiToken)
-	story, _, err := client.client.Stories.Get(1974589, 154134429)
+	story, err := client.GetStory(actualProjectId, actualStoryId)
 	assert.Equal(t, nil, err, "err should be nil")
 	assert.NotEqual(t, nil, story, "story should not be nil")
-	project, _, err := client.client.Projects.Get(1974589)
+	assert.Equal(t, actualStoryName, story.Name)
+	assert.Equal(t, len(actualStoryLabels), len(story.Labels))
+	for _, label := range story.Labels {
+		assert.True(t, label.Name == actualStoryLabels[0] || label.Name == actualStoryLabels[1])
+	}
+}
+
+func TestGetActualProject(t *testing.T) {
+	pivotalApiToken := os.Getenv("PIVOTAL_API_TOKEN")
+	assert.NotEqual(t, pivotalApiToken, "", "pivotalApiToken should not be empty")
+	client := NewClient(pivotalApiToken)
+	project, err := client.GetProject(actualProjectId)
 	assert.Equal(t, nil, err, "err should be nil")
-	assert.Equal(t, 1974589, project.Id, "projectId should equal 1974589")
-	assert.NotEqual(t, 0, len(project.StoryIds), "project.StoryIds should have > 0 items")
+	assert.Equal(t, actualProjectId, project.Id, "projectId should equal "+string(actualProjectId))
 }

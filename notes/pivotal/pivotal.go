@@ -2,6 +2,10 @@ package pivotal
 
 import (
 	"fmt"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"gopkg.in/salsita/go-pivotaltracker.v1/v5/pivotal"
 )
@@ -80,4 +84,29 @@ func GetStory(pl ProjectLister, sg StoryGetter, storyId int) (*pivotal.Story, er
 	}
 	story, err := sg.GetStory(projectId, storyId)
 	return story, err
+}
+
+func ParseStoryUrl(storyUrl string) (map[string]int, error) {
+	parsedUrl, err := url.Parse(storyUrl)
+	if err != nil {
+		return nil, err
+	}
+	urlPath := parsedUrl.EscapedPath()
+	urlPathRegexp := regexp.MustCompile(`^\/n\/projects\/[0-9]+\/stories/[0-9]+$`)
+	if !urlPathRegexp.MatchString(urlPath) {
+		return nil, fmt.Errorf("Url path %s does not match regex %s", urlPath, urlPathRegexp.String())
+	}
+	urlPathParts := strings.Split(urlPath, "/")
+	projectId, err := strconv.ParseInt(urlPathParts[2], 10, 0)
+	if err != nil {
+		return nil, err
+	}
+	storyId, err := strconv.ParseInt(urlPathParts[4], 10, 0)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]int{
+		"projectId": int(projectId),
+		"storyId":   int(storyId),
+	}, nil
 }

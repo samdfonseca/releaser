@@ -26,14 +26,26 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/xoebus/go-tracker"
+  packages = ["."]
+  revision = "a6632e804865bb539e377fc5110656f4c5a4c301"
+
+[[projects]]
   name = "gopkg.in/salsita/go-pivotaltracker.v1"
   packages = ["v5/pivotal"]
   revision = "46083f60193ab53b18d2ffe64d298127652b39ac"
   version = "v1.4.0"
 
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/urfave/cli.v2"
+  packages = ["."]
+  revision = "b2bf3c5abeb90da407891aecd1df2c5a1f6170c1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "309ac8c6b10e08a69b1915f49f79696a1a0ce8334c4809bb5f625d2fdd8a06fe"
+  inputs-digest = "ad97c8fb6225c7c36c91f462a54d5b3f1cfbb7405050e92dc720ca33b421404e"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,12 +1,39 @@
 package wiki
 
 import (
+	"io"
+	"text/template"
+
 	"github.com/sadbox/mediawiki"
+)
+
+var (
+	REL_NOTES_PAGE_TEMPLATE = `{{"{{RelNotesHeader}}"}}
+{{range .Teams}}{{"{{RelNotesTeam|"}}{{ .TeamName }}|{{len .TeamItems }}{{"}}"}}
+{{range .TeamItems}}{{"{{RelNotesTicket|"}}{{ .StoryLink }}|{{ .StoryName }}|{{ .StoryRepo }}|{{ .StoryPrLink }}{{"}}"}}
+{{end}}
+{{- end}}`
 )
 
 type WikiClient struct {
 	WikiUrl string
 	Client  *mediawiki.MWApi
+}
+
+type RelNotesItem struct {
+	StoryLink   string
+	StoryName   string
+	StoryRepo   string
+	StoryPrLink string
+}
+
+type RelNotesTeam struct {
+	TeamName  string
+	TeamItems []RelNotesItem
+}
+
+type RelNotesVars struct {
+	Teams []RelNotesTeam
 }
 
 func NewWikiClient(wikiUrl string) (*WikiClient, error) {
@@ -34,4 +61,12 @@ func (wc *WikiClient) ReadPage(pageName string) (string, error) {
 		return "", err
 	}
 	return revision.Body, nil
+}
+
+func GenerateRelNotesText(relNotesVars RelNotesVars, w io.Writer) error {
+	t := template.Must(template.New("relnotes").Parse(REL_NOTES_PAGE_TEMPLATE))
+	if err := t.Execute(w, relNotesVars); err != nil {
+		return err
+	}
+	return nil
 }

@@ -5,10 +5,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/axialmarket/releaser/notes/config"
 	"github.com/stretchr/testify/assert"
-
 	"github.com/samdfonseca/go-tracker"
-	"github.com/samdfonseca/releaser/notes/config"
 )
 
 var (

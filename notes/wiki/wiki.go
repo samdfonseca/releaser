@@ -1,40 +1,16 @@
 package wiki
 
 import (
+	"fmt"
 	"io"
-	"text/template"
+	"io/ioutil"
 
 	"github.com/sadbox/mediawiki"
-)
-
-var (
-	REL_NOTES_PAGE_TEMPLATE = `Release Date: {{ .ReleaseDate }}
-{{range .Teams}}{{"{{RelNotesTeam|"}}{{ .TeamName }}|{{len .TeamItems }}{{"}}"}}
-{{range .TeamItems}}{{"{{RelNotesTicket|"}}{{ .StoryLink }}|{{ .StoryName }}|{{ .StoryRepo }}|{{ .StoryPrLink }}{{"}}"}}
-{{end}}
-{{- end}}`
 )
 
 type WikiClient struct {
 	WikiUrl string
 	Client  *mediawiki.MWApi
-}
-
-type RelNotesItem struct {
-	StoryLink   string
-	StoryName   string
-	StoryRepo   string
-	StoryPrLink string
-}
-
-type RelNotesTeam struct {
-	TeamName  string
-	TeamItems []RelNotesItem
-}
-
-type RelNotesVars struct {
-	ReleaseDate string
-	Teams       []RelNotesTeam
 }
 
 func NewWikiClient(wikiUrl string) (*WikiClient, error) {
@@ -56,18 +32,20 @@ func (wc *WikiClient) UpdatePageText(pageName, pageText string) error {
 	return wc.Client.Edit(editConfig)
 }
 
+func (wc *WikiClient) UpdatePageTextReader(pageName string, r io.Reader) error {
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	pageText := fmt.Sprintf("%s", b)
+	return wc.UpdatePageText(pageName, pageText)
+}
+
 func (wc *WikiClient) ReadPage(pageName string) (string, error) {
 	revision, err := wc.Client.Read(pageName)
 	if err != nil {
 		return "", err
 	}
+	logger.Debugln(revision.Body)
 	return revision.Body, nil
-}
-
-func GenerateRelNotesText(relNotesVars RelNotesVars, w io.Writer) error {
-	t := template.Must(template.New("relnotes").Parse(REL_NOTES_PAGE_TEMPLATE))
-	if err := t.Execute(w, relNotesVars); err != nil {
-		return err
-	}
-	return nil
 }

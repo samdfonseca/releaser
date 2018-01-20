@@ -1,2 +1,6 @@
 notes_config.json
 releaser
+*.log
+.idea
+/Dockerfile
+/build/

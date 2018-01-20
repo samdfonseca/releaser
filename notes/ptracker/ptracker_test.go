@@ -5,13 +5,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/axialmarket/releaser/notes/config"
-	"github.com/stretchr/testify/assert"
+	"github.com/axialmarket/releaser/config"
 	"github.com/samdfonseca/go-tracker"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	TEST_CONFIG = config.NotesConfig{
+	TEST_CONFIG = config.ReleaserConfig{
 		PivotalApiToken:   os.Getenv("PIVOTAL_API_TOKEN"),
 		PivotalProjectIds: []int{2077921, 2123086, 1974589, 2099793},
 		GithubOrg:         "axialmarket",

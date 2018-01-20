@@ -27,3 +27,7 @@
 [[constraint]]
   branch = "v2"
   name = "gopkg.in/urfave/cli.v2"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/desertbit/grumble"

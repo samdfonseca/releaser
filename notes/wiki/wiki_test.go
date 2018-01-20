@@ -1,9 +1,9 @@
 package wiki
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -11,101 +11,36 @@ import (
 )
 
 var (
-	wikiUrl       = "https://wiki.axialmarket.com/api.php"
 	testPageTitle = "Samtest"
 )
 
-func TestCreateWikiClient(t *testing.T) {
-	client, err := NewWikiClient(wikiUrl)
-	assert.Equal(t, err, nil, "Error should be nil")
-	assert.NotEqual(t, client, nil, "Client should not be nil")
+func wikiServer(pageTitle string) *httptest.Server {
+	mainResp := `{"warnings":{"info":{"*":"The intoken parameter has been deprecated."}},"query":{"pages":{"1":{"pageid":1,"ns":0,"title":"Main Page","contentmodel":"wikitext","pagelanguage":"en","touched":"2018-01-15T19:22:42Z","lastrevid":1750,"counter":309453,"length":5408,"starttimestamp":"2018-01-20T19:08:22Z","edittoken":"+\\","revisions":[{"revid":1750,"parentid":1678,"user":"172.17.0.1","anon":"","timestamp":"2018-01-15T19:22:42Z","comment":""}]}}}}`
+	editResp := `{"edit":{"result":"Success","pageid":252,"title":"%s","contentmodel":"wikitext","oldrevid":1813,"newrevid":1814,"newtimestamp":"2018-01-20T19:08:22Z"}}`
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		defer r.Body.Close()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if r.Form.Get("action") == "query" && r.Form.Get("titles") == "Main Page" {
+			fmt.Fprintln(w, mainResp)
+			return
+		}
+		if r.Form.Get("action") == "edit" && r.Form.Get("title") == pageTitle {
+			fmt.Fprintln(w, fmt.Sprintf(editResp, pageTitle))
+			return
+		}
+	}))
 }
 
 func TestEditWikiPage(t *testing.T) {
-	client, err := NewWikiClient(wikiUrl)
+	ts := wikiServer(testPageTitle)
+	defer ts.Close()
+	client, err := NewWikiClient(ts.URL)
 	assert.Equal(t, err, nil, "Error should be nil")
 	newPageText := fmt.Sprintf("sam test %d", time.Now().Unix())
 	err = client.UpdatePageText(testPageTitle, newPageText)
 	assert.Equal(t, err, nil, "Error should be nil")
-	pageText, err := client.ReadPage(testPageTitle)
-	assert.Equal(t, err, nil, "Error should be nil")
-	assert.Equal(t, newPageText, pageText, "Page should be updated with new text")
-}
-
-func TestGenerateRelNotesText(t *testing.T) {
-	EXPECTED_REL_NOTES_PAGE := `Release Date: 2018-01-11
-{{RelNotesTeam|OUTREACH|1}}
-{{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134429|Status filters should update when statuses changes are successful|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/805}}
-`
-	i := RelNotesVars{
-		ReleaseDate: "2018-01-11",
-		Teams: []RelNotesTeam{
-			RelNotesTeam{
-				TeamName: "OUTREACH",
-				TeamItems: []RelNotesItem{
-					RelNotesItem{
-						StoryLink:   "https://www.pivotaltracker.com/story/show/154134429",
-						StoryName:   "Status filters should update when statuses changes are successful",
-						StoryRepo:   "axial-fe-app",
-						StoryPrLink: "https://github.com/axialmarket/axial-FE-app/pull/805",
-					},
-				},
-			},
-		},
-	}
-	var buf bytes.Buffer
-	err := GenerateRelNotesText(i, &buf)
-	assert.Equal(t, err, nil, "Error should be nil")
-	s, err := ioutil.ReadAll(&buf)
-	assert.Equal(t, err, nil, "Error should be nil")
-	assert.Equal(t, EXPECTED_REL_NOTES_PAGE, string(s))
-}
-
-func TestGenerateRelNotesMultipleStories(t *testing.T) {
-	EXPECTED_REL_NOTES_PAGE := `Release Date: 2018-01-11
-{{RelNotesTeam|OUTREACH|2}}
-{{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134429|Status filters should update when statuses changes are successful|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/805}}
-{{RelNotesTicket|https://www.pivotaltracker.com/story/show/154134398|I want to see sender's name in Active Deals list|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/813}}
-{{RelNotesTeam|TAXONIMY|1}}
-{{RelNotesTicket|https://www.pivotaltracker.com/story/show/154255967|Implement discard changes option to exit modal on sellside form|axial-fe-app|https://github.com/axialmarket/axial-FE-app/pull/814}}
-`
-	i := RelNotesVars{
-		ReleaseDate: "2018-01-11",
-		Teams: []RelNotesTeam{
-			RelNotesTeam{
-				TeamName: "OUTREACH",
-				TeamItems: []RelNotesItem{
-					RelNotesItem{
-						StoryLink:   "https://www.pivotaltracker.com/story/show/154134429",
-						StoryName:   "Status filters should update when statuses changes are successful",
-						StoryRepo:   "axial-fe-app",
-						StoryPrLink: "https://github.com/axialmarket/axial-FE-app/pull/805",
-					},
-					RelNotesItem{
-						StoryLink:   "https://www.pivotaltracker.com/story/show/154134398",
-						StoryName:   "I want to see sender's name in Active Deals list",
-						StoryRepo:   "axial-fe-app",
-						StoryPrLink: "https://github.com/axialmarket/axial-FE-app/pull/813",
-					},
-				},
-			},
-			RelNotesTeam{
-				TeamName: "TAXONIMY",
-				TeamItems: []RelNotesItem{
-					RelNotesItem{
-						StoryLink:   "https://www.pivotaltracker.com/story/show/154255967",
-						StoryName:   "Implement discard changes option to exit modal on sellside form",
-						StoryRepo:   "axial-fe-app",
-						StoryPrLink: "https://github.com/axialmarket/axial-FE-app/pull/814",
-					},
-				},
-			},
-		},
-	}
-	var buf bytes.Buffer
-	err := GenerateRelNotesText(i, &buf)
-	assert.Equal(t, err, nil, "Error should be nil")
-	s, err := ioutil.ReadAll(&buf)
-	assert.Equal(t, err, nil, "Error should be nil")
-	assert.Equal(t, EXPECTED_REL_NOTES_PAGE, string(s))
 }

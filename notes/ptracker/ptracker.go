@@ -11,7 +11,7 @@ import (
 )
 
 func GetPrLinkRegexp(githubOrg string) (*regexp.Regexp, error) {
-	return regexp.Compile(fmt.Sprintf(`https:\/\/github.com\/%s\/[a-zA-Z-]+\/pull/[0-9]+`, githubOrg))
+	return regexp.Compile(fmt.Sprintf(`https:\/\/github.com\/%s\/[a-zA-Z0-9_-]+\/pull/[0-9]+`, githubOrg))
 }
 
 func NewClient(apiToken string) *tracker.Client {
@@ -24,17 +24,17 @@ func GetStoriesWithLabelQuery(label string) tracker.StoriesQuery {
 	}
 }
 
-func getStoriesWithLabel(projClient tracker.ProjectClient, label string, limit, offset int) ([]tracker.Story, error) {
+func getStoriesWithLabel(pc tracker.ProjectClient, label string, limit, offset int) ([]tracker.Story, error) {
 	query := GetStoriesWithLabelQuery(label)
 	query.Limit = limit
 	query.Offset = offset
-	stories, pagination, err := projClient.Stories(query)
+	stories, pagination, err := pc.Stories(query)
 	if err != nil {
 		return nil, err
 	}
 	if len(stories) != pagination.Total {
 		for o := pagination.Offset; len(stories) >= pagination.Total; o = o + pagination.Limit {
-			nextStories, err := getStoriesWithLabel(projClient, label, limit, o)
+			nextStories, err := getStoriesWithLabel(pc, label, limit, o)
 			if err != nil {
 				return nil, err
 			}
@@ -44,8 +44,8 @@ func getStoriesWithLabel(projClient tracker.ProjectClient, label string, limit, 
 	return stories, err
 }
 
-func GetStoriesWithLabel(projClient tracker.ProjectClient, label string) ([]tracker.Story, error) {
-	return getStoriesWithLabel(projClient, label, 25, 0)
+func GetStoriesWithLabel(pc tracker.ProjectClient, label string) ([]tracker.Story, error) {
+	return getStoriesWithLabel(pc, label, 25, 0)
 }
 
 func ParseStoryUrl(storyUrl string) (map[string]int, error) {

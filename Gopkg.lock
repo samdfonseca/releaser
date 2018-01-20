@@ -2,10 +2,58 @@
 
 
 [[projects]]
+  name = "github.com/chzyer/readline"
+  packages = ["."]
+  revision = "62c6fe6193755f722b8b8788aa7357be55a50ff1"
+  version = "v1.4"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/desertbit/closer"
+  packages = ["."]
+  revision = "756292787619f9b691c47b65bb032ee53b2d8fa1"
+
+[[projects]]
+  name = "github.com/desertbit/columnize"
+  packages = ["."]
+  revision = "983d3a5fab1bf04d1b412465d2d9f8430e2e917e"
+  version = "v2.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/desertbit/go-shlex"
+  packages = ["."]
+  revision = "3f9db97f856818214da2e1057f8ad84803971cff"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/desertbit/grumble"
+  packages = ["."]
+  revision = "0c34602077a85bfce8f768c56757622f45a2f1f9"
+
+[[projects]]
+  name = "github.com/fatih/color"
+  packages = ["."]
+  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
+  version = "v1.5.0"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -26,10 +74,26 @@
   revision = "cd860e458826d48f9c495699345f94f4d2e58f57"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/samdfonseca/releaser"
+  packages = [
+    "notes/config",
+    "notes/ptracker",
+    "notes/wiki"
+  ]
+  revision = "f1f5d544b8456548085a97be71e217db87ce409a"
+
+[[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "2c42eef0765b9837fbdab12011af7830f55f88f0"
 
 [[projects]]
   branch = "v2"
@@ -40,6 +104,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7ab26c14b15f7c24cb88b02362c6aa9839672e85238200677beeae836cc2aa51"
+  inputs-digest = "ca924f8a6a6942ce1633a66b8dfb15fd44dbb28e95154b37c33aac1e6a8ac320"
   solver-name = "gps-cdcl"
   solver-version = 1

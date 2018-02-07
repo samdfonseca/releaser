@@ -24,7 +24,7 @@ func getReleaseStories(c *cli.Context) error {
 	}
 	config, err := releaserConfig.New(f)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	label := c.String("label")
 	if label == "" {
@@ -34,6 +34,7 @@ func getReleaseStories(c *cli.Context) error {
 	if relDate == "" {
 		relDate = time.Now().Format("2006-01-02")
 	}
+	isDebug := c.Bool("debug")
 	relNotesVars := notes.RelNotesVars{
 		ReleaseDate: relDate,
 		Projects:       []notes.RelNotesProject{},
@@ -41,13 +42,16 @@ func getReleaseStories(c *cli.Context) error {
 	ptClient := NewClient(config.PivotalApiToken)
 	prLinkRegexp, err := GetPrLinkRegexp(config.GithubOrg)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	for _, projId := range config.PivotalProjectIds {
 		projClient := ptClient.InProject(projId)
 		proj, err := projClient.Project()
 		if err != nil {
-			return err
+			if isDebug {
+				log.Fatalf("Unable to fetch project %d: %s", projId, err)
+			}
+			continue
 		}
 		relNotesTeam := notes.RelNotesProject{
 			ProjectName:  proj.Name,
@@ -55,7 +59,7 @@ func getReleaseStories(c *cli.Context) error {
 		}
 		projStories, err := GetStoriesWithLabel(projClient, label)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 		for _, story := range projStories {
 			relNotesItem := notes.RelNotesStory{
@@ -68,7 +72,7 @@ func getReleaseStories(c *cli.Context) error {
 			if len(prUrls) > 0 {
 				parsedPrUrl, err := url.Parse(prUrls[0])
 				if err != nil {
-					return err
+					log.Fatal(err)
 				}
 				prUrlPath := parsedPrUrl.EscapedPath()
 				repo := strings.Split(prUrlPath, "/")[2]
@@ -83,10 +87,10 @@ func getReleaseStories(c *cli.Context) error {
 	}
 	notesJson, err := json.Marshal(relNotesVars)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	if _, err := os.Stdout.Write(notesJson); err != nil {
-		return err
+		log.Fatal(err)
 	}
 	return nil
 }
@@ -106,6 +110,10 @@ func Command() *cli.Command {
 			&cli.StringFlag{
 				Name:  "relDate",
 				Usage: "date of release in yyyy-mm-dd format",
+			},
+			&cli.BoolFlag{
+				Name: "debug",
+				Usage: "print debug output and fail fast on non-fatal errors",
 			},
 		},
 	}

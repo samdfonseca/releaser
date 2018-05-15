@@ -1,0 +1,6 @@
+{
+  "pivotal_api_token": "<api_token>",
+  "pivotal_project_ids": [1234567],
+  "github_org": "axialmarket",
+  "wiki_url": "https://wiki.somewhere.com/api.php"
+}

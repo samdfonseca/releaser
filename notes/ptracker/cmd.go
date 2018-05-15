@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"gopkg.in/urfave/cli.v2"
 
 	releaserConfig "github.com/axialmarket/releaser/config"
-	"github.com/axialmarket/releaser/notes"
 	"github.com/axialmarket/releaser/flags"
+	"github.com/axialmarket/releaser/notes"
 )
 
 func getReleaseStories(c *cli.Context) error {
@@ -24,7 +22,7 @@ func getReleaseStories(c *cli.Context) error {
 	}
 	config, err := releaserConfig.New(f)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	label := c.String("label")
 	if label == "" {
@@ -34,46 +32,50 @@ func getReleaseStories(c *cli.Context) error {
 	if relDate == "" {
 		relDate = time.Now().Format("2006-01-02")
 	}
+	isDebug := c.Bool("debug")
 	relNotesVars := notes.RelNotesVars{
 		ReleaseDate: relDate,
-		Projects:       []notes.RelNotesProject{},
+		Projects:    []notes.RelNotesProject{},
 	}
 	ptClient := NewClient(config.PivotalApiToken)
 	prLinkRegexp, err := GetPrLinkRegexp(config.GithubOrg)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	for _, projId := range config.PivotalProjectIds {
 		projClient := ptClient.InProject(projId)
 		proj, err := projClient.Project()
 		if err != nil {
-			return err
+			if isDebug {
+				log.Fatalf("Unable to fetch project %d: %s", projId, err)
+			}
+			continue
 		}
 		relNotesTeam := notes.RelNotesProject{
-			ProjectName:  proj.Name,
+			ProjectName:    proj.Name,
 			ProjectStories: []notes.RelNotesStory{},
 		}
 		projStories, err := GetStoriesWithLabel(projClient, label)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 		for _, story := range projStories {
 			relNotesItem := notes.RelNotesStory{
-				StoryLink:   story.URL,
-				StoryName:   story.Name,
-				StoryRepo:   "no PR",
-				StoryPrLink: "no PR",
+				StoryLink:    story.URL,
+				StoryName:    story.Name,
+				StoryPrLinks: []string{"no PRs"},
 			}
 			prUrls := GetPrLinksFromStory(story, prLinkRegexp)
 			if len(prUrls) > 0 {
-				parsedPrUrl, err := url.Parse(prUrls[0])
-				if err != nil {
-					return err
-				}
-				prUrlPath := parsedPrUrl.EscapedPath()
-				repo := strings.Split(prUrlPath, "/")[2]
-				relNotesItem.StoryRepo = repo
-				relNotesItem.StoryPrLink = prUrls[0]
+				relNotesItem.StoryPrLinks = prUrls
+				// parsedPrUrl, err := url.Parse(prUrls[0])
+				// if err != nil {
+				//     log.Fatal(err)
+				// }
+				// prUrlPath := parsedPrUrl.EscapedPath()
+				// repo := strings.Split(prUrlPath, "/")[2]
+				// relNotesItem.StoryRepo = repo
+				// relNotesItem.StoryPrLink = prUrls[0]
 			}
 			relNotesTeam.ProjectStories = append(relNotesTeam.ProjectStories, relNotesItem)
 		}
@@ -83,10 +85,10 @@ func getReleaseStories(c *cli.Context) error {
 	}
 	notesJson, err := json.Marshal(relNotesVars)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	if _, err := os.Stdout.Write(notesJson); err != nil {
-		return err
+		log.Fatal(err)
 	}
 	return nil
 }
@@ -106,6 +108,10 @@ func Command() *cli.Command {
 			&cli.StringFlag{
 				Name:  "relDate",
 				Usage: "date of release in yyyy-mm-dd format",
+			},
+			&cli.BoolFlag{
+				Name:  "debug",
+				Usage: "print debug output and fail fast on non-fatal errors",
 			},
 		},
 	}

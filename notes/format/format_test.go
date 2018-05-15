@@ -110,18 +110,6 @@ func TestMarshalJsonDataToRelNotesVars(t *testing.T) {
 	if err := json.Unmarshal(testRnVarsBytes, &rnVars); err != nil {
 		t.Error(err)
 	}
-	for i := range testRnVars.Projects {
-		expectedProject := testRnVars.Projects[i]
-		actualProject := rnVars.Projects[i]
-		assert.EqualValues(t, expectedProject.ProjectName, actualProject.ProjectName)
-		for j := range expectedProject.ProjectStories {
-			expectedStory := expectedProject.ProjectStories[j]
-			actualStory := expectedProject.ProjectStories[j]
-			assert.EqualValues(t, expectedStory.StoryLink, actualStory.StoryLink)
-			assert.EqualValues(t, expectedStory.StoryName, actualStory.StoryName)
-			assert.EqualValues(t, expectedStory.StoryPrLinks, actualStory.StoryPrLinks)
-		}
-	}
 	assert.EqualValues(t, testRnVars, rnVars, spew.Sdump(testRnVars, rnVars))
 }
 

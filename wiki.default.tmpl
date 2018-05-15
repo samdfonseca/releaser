@@ -1,0 +1,5 @@
+Release Date: {{ .ReleaseDate }}
+{{range .Projects}}{{"{{RelNotesTeam|"}}{{ .ProjectName }}|{{len .ProjectStories }}{{"}}"}}
+{{range .ProjectStories}}{{"{{RelNotesTicket|"}}{{ .StoryLink }}|{{ .StoryName }}{{"}}"}}
+{{range .StoryPrLinks}}{{"* "}}{{.}}
+{{end}}{{end}}{{- end}}

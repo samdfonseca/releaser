@@ -1,14 +1,13 @@
 package notes
 
 type RelNotesStory struct {
-	StoryLink   string `json:"url"`
-	StoryName   string `json:"name"`
-	StoryRepo   string `json:"repo"`
-	StoryPrLink string `json:"pr_url"`
+	StoryLink    string   `json:"url"`
+	StoryName    string   `json:"name"`
+	StoryPrLinks []string `json:"pr_urls"`
 }
 
 type RelNotesProject struct {
-	ProjectName    string `json:"name"`
+	ProjectName    string          `json:"name"`
 	ProjectStories []RelNotesStory `json:"stories"`
 }
 

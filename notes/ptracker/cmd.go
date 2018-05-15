@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"gopkg.in/urfave/cli.v2"
 
 	releaserConfig "github.com/axialmarket/releaser/config"
-	"github.com/axialmarket/releaser/notes"
 	"github.com/axialmarket/releaser/flags"
+	"github.com/axialmarket/releaser/notes"
 )
 
 func getReleaseStories(c *cli.Context) error {
@@ -37,7 +35,7 @@ func getReleaseStories(c *cli.Context) error {
 	isDebug := c.Bool("debug")
 	relNotesVars := notes.RelNotesVars{
 		ReleaseDate: relDate,
-		Projects:       []notes.RelNotesProject{},
+		Projects:    []notes.RelNotesProject{},
 	}
 	ptClient := NewClient(config.PivotalApiToken)
 	prLinkRegexp, err := GetPrLinkRegexp(config.GithubOrg)
@@ -54,7 +52,7 @@ func getReleaseStories(c *cli.Context) error {
 			continue
 		}
 		relNotesTeam := notes.RelNotesProject{
-			ProjectName:  proj.Name,
+			ProjectName:    proj.Name,
 			ProjectStories: []notes.RelNotesStory{},
 		}
 		projStories, err := GetStoriesWithLabel(projClient, label)
@@ -63,21 +61,21 @@ func getReleaseStories(c *cli.Context) error {
 		}
 		for _, story := range projStories {
 			relNotesItem := notes.RelNotesStory{
-				StoryLink:   story.URL,
-				StoryName:   story.Name,
-				StoryRepo:   "no PR",
-				StoryPrLink: "no PR",
+				StoryLink:    story.URL,
+				StoryName:    story.Name,
+				StoryPrLinks: []string{"no PRs"},
 			}
 			prUrls := GetPrLinksFromStory(story, prLinkRegexp)
 			if len(prUrls) > 0 {
-				parsedPrUrl, err := url.Parse(prUrls[0])
-				if err != nil {
-					log.Fatal(err)
-				}
-				prUrlPath := parsedPrUrl.EscapedPath()
-				repo := strings.Split(prUrlPath, "/")[2]
-				relNotesItem.StoryRepo = repo
-				relNotesItem.StoryPrLink = prUrls[0]
+				relNotesItem.StoryPrLinks = prUrls
+				// parsedPrUrl, err := url.Parse(prUrls[0])
+				// if err != nil {
+				//     log.Fatal(err)
+				// }
+				// prUrlPath := parsedPrUrl.EscapedPath()
+				// repo := strings.Split(prUrlPath, "/")[2]
+				// relNotesItem.StoryRepo = repo
+				// relNotesItem.StoryPrLink = prUrls[0]
 			}
 			relNotesTeam.ProjectStories = append(relNotesTeam.ProjectStories, relNotesItem)
 		}
@@ -112,7 +110,7 @@ func Command() *cli.Command {
 				Usage: "date of release in yyyy-mm-dd format",
 			},
 			&cli.BoolFlag{
-				Name: "debug",
+				Name:  "debug",
 				Usage: "print debug output and fail fast on non-fatal errors",
 			},
 		},
